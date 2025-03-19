@@ -3,12 +3,15 @@
 #include <ArduinoJson.h>
 
 const char* ssid = "Galaxy A51 D2FB";
+//const char* ssid = "TP-Link_B09A";
 const char* password = "ajhq9289";
-const char* serverAddress = "http://127.0.0.1:5000"; // Replace with your server's IP and endpoint
+//const char* password = "89540824";
+const char* serverAddress = "http://192.168.148.16:5000/generate"; // Replace with your server's IP and endpoint
 
-String preDefinedPrompt = "Generate a JSON format code for turning the LED on, then turn it off";
+String preDefinedPrompt = "A function ledOn() allows me to turn on a light. Can you output only a JSON format to call this function?";
 
 void setup() {
+  pinMode(LED_BUILTIN, OUTPUT);
   Serial.begin(115200);
 
   WiFi.begin(ssid, password);
@@ -72,6 +75,16 @@ void sendPromptToServer(String prompt) {
   }
 }
 
+void ledOn() {
+  Serial.println("Executing: ledOn");
+  digitalWrite(LED_BUILTIN, HIGH); // Or whatever pin your LED is connected to
+}
+
+void ledOff() {
+  Serial.println("Executing: ledOff");
+  digitalWrite(LED_BUILTIN, LOW);
+}
+
 void processJson(String jsonString) {
   // Use ArduinoJson to parse the JSON string
   StaticJsonDocument<512> doc; // Adjust size as needed
@@ -82,31 +95,30 @@ void processJson(String jsonString) {
     Serial.println(error.c_str());
     return;
   }
-
-  if (doc.containsKey("sequence")) {
-    JsonArray sequence = doc["sequence"].as<JsonArray>();
-    for (JsonObject action : sequence) {
-      String functionName = action["function"].as<String>();
-      int delayTime = action["delay"].as<int>();
-
-      if (functionName == "ledOn") {
-        ledOn();
-      } else if (functionName == "ledOff") {
-        ledOff();
-      } else {
-        Serial.println("Unknown function: " + functionName);
-      }
-      delay(delayTime);
-    }
+  // Now directly access "function" from the main object
+  if (doc.containsKey("function")) {
+    String functionName = doc["function"].as<String>();  // Directly access from doc
+    Serial.print("Function: ");
+    Serial.println(functionName);
+    if (functionName == "ledOn") {
+      ledOn();
   }
+  // if (doc.containsKey("sequence")) {
+  //   JsonArray sequence = doc["sequence"].as<JsonArray>();
+  //   for (JsonObject action : sequence) {
+  //     String functionName = action["function"].as<String>();
+  //     int delayTime = action["delay"].as<int>();
+
+  //     if (functionName == "ledOn") {
+  //       ledOn();
+  //     } else if (functionName == "ledOff") {
+  //       ledOff();
+  //     } else {
+  //       Serial.println("Unknown function: " + functionName);
+  //     }
+  //     delay(delayTime);
+  //   }
+  // }
+}
 }
 
-void ledOn() {
-  Serial.println("Executing: ledOn");
-  digitalWrite(LED_BUILTIN, HIGH); // Or whatever pin your LED is connected to
-}
-
-void ledOff() {
-  Serial.println("Executing: ledOff");
-  digitalWrite(LED_BUILTIN, LOW);
-}

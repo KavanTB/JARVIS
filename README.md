@@ -8,3 +8,6 @@ For the arduino file, update the ssid and password for whichever wifi it is that
 In addition, go to the command terminal and type 'ipconfig'. Take the IPv4 address and update the serverAddress in the arduino file in the form "http://SERVER_IP_ADDRESS:5000/generate"
 
 Upload the code on the esp and see the magic! Your very own JARVIS! ;p
+
+
+# This is a part of the project with the 'ArduinoBot_ws' being the second part of this project. Integration between the two is still pending.
